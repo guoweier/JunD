@@ -4,7 +4,7 @@
 
 ## PACKAGES ##
 import sys, math, os, time
-import argparse 
+import argparse
 
 ###### TO UPDATE: confirm necessary packages are all correctly loaded ########
 ###### TO UPDATE: choose mapping steps (whether to generate sam, or bam, or both, etc) ######
