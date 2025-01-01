@@ -1,11 +1,10 @@
 # Weier Guo Python 
 # Create: 12/2/2024
-# Introduction: check reference fasta has the appropriate chrom names (Chr01, Chr02, etc)
+# Introduction: check reference fasta has the appropriate chrom names (Chr1, Chr2, etc)
 
 ## PACKAGES ##
 import sys, math, os, time
 import argparse 
-import subprocess 
 
 ## CHECK REF NAME ##
 def calibrate_chrname(reference, output):

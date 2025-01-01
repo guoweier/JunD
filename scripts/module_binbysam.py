@@ -14,18 +14,18 @@ data = {}
 lookup = {}
 globalcount = {}
 liblist = []
-o = open(outputfile, 'w')
+o = open("binbysam.txt", 'w')
 
 ## READ ALL SAM FILES ##
-def read_sam():
-    li = os.listdir(os.getcwd())
-    todo = filter(lambda x: x.endswith('.sam'), li)
-    return todo 
+def read_sam(sampath):
+    li = os.listdir(sampath)
+    #todo = filter(lambda x: x.endswith('.sam'), li)
+    return li
 
 ## GET CHROM INFO FROM SAM HEADER ##
-def get_chrom(binsize):
-    todo = read_sam()
-    f = open(todo[0])
+def get_chrom(sampath, binsize):
+    todo = read_sam(sampath)
+    f = open(sampath+todo[0])
     for line in f:
         if line[0] != "@":
             break 
@@ -40,7 +40,7 @@ def get_chrom(binsize):
             data[key1] = {}
         if key2 not in data[key1]:
             data[key1][key2] = {}
-        keys3 = range(int(temp[1])/int(binsize)+1)
+        key3 = range(int(temp[1])//int(binsize)+1)
         for mod in key3:
             if mod not in data[key1][key2]:
                 data[key1][key2][mod] = {}
@@ -53,10 +53,10 @@ def add_blanks(binsize):
     return numblanks 
 
 ## COUNT READS ##
-def count_reads(binsize):
-    todo = get_chrom(binsize)
+def count_reads(sampath, binsize):
+    todo = get_chrom(sampath, binsize)
     for file in todo:
-        f = open(file)
+        f = open(sampath+file)
         print(file)
         libname = file.split('.')[0].replace('_aln','')
         liblist.append(libname)
@@ -75,29 +75,31 @@ def count_reads(binsize):
                 continue 
             key1 = ln[2][3:]
             key2 = ln[2]
-            key3 = int(pos)/binsize
+            key3 = int(pos)//binsize
             try:
                 data[key1][key2][key3][libname] += 1
             except:
                 if libname not in data[key1][key2][key3]:
-                    data[key1][key2][key3] = 1
+                    data[key1][key2][key3][libname] = 1
             globalcount[libname] += 1
         f.close()
 
-
 ## CREATE OUTPUT file ##
-def write_outfile_header(controlfile):
-    control = controlfile.split('.')[0].replace('_aln','')
+def write_outfile_header(sampath, controlfile):
+    controlpath = sampath+controlfile
+    control = controlpath.split('.')[0].replace('_aln','')
+    controlkey = control.split('/')[1]
     header = ['Chrom', 'Strt', 'End']
     header += liblist
     header += map(lambda x: x+"/"+control, liblist)
     o.write('\t'.join(header)+'\n') 
+    return controlkey
 
-def write_outfile_data(binsize, ploidy, breaks):
+def write_outfile_data(sampath, controlfile, binsize, ploidy, breaks):
+    control = write_outfile_header(sampath, controlfile)
     for chrom in alls:
         part = chrom[3:]
-        bins = data[part][chrom].keys()
-        bins.sort()
+        bins = sorted(data[part][chrom].keys())
         for modbin in bins:
             libdata = data[part][chrom][modbin]
             line = [chrom, modbin*binsize+1, (modbin+1)*binsize]
@@ -132,16 +134,18 @@ def write_outfile_data(binsize, ploidy, breaks):
 
 ## CALL ARGUMENTS ##
 def parse_arguments():
+    parser = argparse.ArgumentParser(description="binbysam")
+    parser.add_argument("--sampath", type=str, default="sam/", help="Path for sam files (default=sam/).")
     parser.add_argument("--controlfile", type=str, default="NA", help="Input sam file (default=NA).")
-    parser.add_argument("--outputfile", type=str, required=True, help="Output bin file.")
+    #parser.add_argument("--binbysamfile", type=str, default="binbysam.txt", help="Output bin file.")
     parser.add_argument("--binsize", type=int, default=100000, help="Bin size.")
     parser.add_argument("--breaks", type=str, default = False, help="Insert breaks.")
-    parser.add_argument("--ploidy", type = int, default=2, help="Ploidy multiplier (default=2).")  
+    parser.add_argument("--ploidy", type = int, default=2, help="Ploidy multiplier (default=2).")
     return parser.parse_args()
 
 if __name__ in "__main__":
     args = parse_arguments()
-    count_reads(args.binsize)
-    write_outfile_header(args.controlfile)
-    write_outfile_data(args.binsize, args.ploidy, args.breaks)
+    count_reads(args.sampath, args.binsize)
+    #write_outfile_header(args.sampath, args.controlfile)
+    write_outfile_data(args.sampath, args.controlfile, args.binsize, args.ploidy, args.breaks)
 
