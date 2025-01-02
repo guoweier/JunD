@@ -2,6 +2,8 @@
 # Create: 12/27/2024
 ## usage: currently this scripts needs to be run in the folder with all fq files. 
 #### UPDATE: to specify the location of fq files. #####
+#### UPDATE: to write next step for chimeric reads bin selection. ####
+#### UPDATE: to make main.py into class. so that the running commands are: jund fqtobam [*args]; jund binbysam [*args]; #####
 
 ## PACKAGES ##
 import sys, math, os, time
@@ -37,7 +39,6 @@ def parse_arguments():
 if __name__ in "__main__":
     args = parse_arguments()
     scripts_and_args = [
-        #("../scripts/module_ref_calibrate.py", ["--reference", args.reference, "--output", args.output]),
         ("../scripts/module_fqtobam.py", ["--database", args.database, "--mode", args.mode, "--thread", str(args.thread)]),
         ("../scripts/module_binbysam.py", ["--sampath", args.sampath, "--controlfile", args.controlfile, "--binbysamfile", args.binbysamfile, "--binsize", str(args.binsize), "--breaks", args.breaks, "--ploidy", str(args.ploidy)])
     ]
