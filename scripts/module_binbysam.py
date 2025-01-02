@@ -1,6 +1,8 @@
 # Weier Guo Python
 # Create: 12/26/2024
 # INTRODUCTION: Create relative read coverage for all sam files. 
+#### UPDATE: to adjust script to binbysamv8, for including different mapping options. ####
+#### DEBUG: why chr5 output twice. 
 
 ## PACKAGES ##
 import sys, math, os, time

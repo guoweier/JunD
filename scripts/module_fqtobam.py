@@ -8,7 +8,6 @@ import argparse
 
 ###### TO UPDATE: confirm necessary packages are all correctly loaded ########
 ###### TO UPDATE: choose mapping steps (whether to generate sam, or bam, or both, etc) ######
-###### To Update: to automatic ref indexing #######
 ## usage: currently this scripts needs to be run in the folder with all fq files. 
 #### UPDATE: to specify the location of fq files. #####
 
@@ -23,11 +22,13 @@ def calibrate_chrname(database):
         seq_id = 1
         for line in ref:
             if line.startswith(">"):
-                if "chromosome" in line:
+                if line.split("\n")[0] == ">Chr"+str(seq_id):
+                    outfile.write(line)
+                elif "chromosome" not in line:
+                    break
+                elif "chromosome" in line:
                     outfile.write(f">Chr{seq_id}\n")
                     seq_id += 1
-                elif line.split("\n")[0] == ">Chr"+str(seq_id):
-                    outfile.write(line)
             else:
                 outfile.write(line)
     return dbdir 
