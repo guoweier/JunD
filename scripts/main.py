@@ -1,5 +1,5 @@
 # Weier Guo Python 
-# Create: 12/2/2024
+# Create: 12/27/2024
 ## usage: currently this scripts needs to be run in the folder with all fq files. 
 #### UPDATE: to specify the location of fq files. #####
 
@@ -20,13 +20,8 @@ def run_modules(scripts_and_args):
 ## CALL ARGUMENTS ##
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Main")
-    # calibrate reference
-    #parser.add_argument("--reference", type=str, help="Input reference fasta file.")
-    #parser.add_argument("--output", type=str, help="Output calibrated reference file.")
     # mapping 
     parser.add_argument("--database", type=str, help="Input database file for mapping (default=output from previous step).")
-    ##### To Update: remove this parameter for automatic ref indexing #######
-    #parser.add_argument("--index", type=str, default ='n', help="whether do reference indexing step. n=NO (default), y=YES.")
     parser.add_argument("--mode", type = str, default='u', help="When mapping as uninterleaved, Read type, u = UNINTERLEAVED (default), i = INTERLEAVED")
     parser.add_argument("--thread", type=int, default=8, help="How many threads to use during alignment.")
     # binbysam

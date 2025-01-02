@@ -1,5 +1,5 @@
 # Weier Guo Python 
-# Create: 12/2/2024
+# Create: 12/27/2024
 # Introduction: check reference fasta has the appropriate chrom names (Chr1, Chr2, etc)
 
 ## PACKAGES ##
