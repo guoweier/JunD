@@ -12,6 +12,26 @@ import argparse
 ## usage: currently this scripts needs to be run in the folder with all fq files. 
 #### UPDATE: to specify the location of fq files. #####
 
+## CHECK REF NAME ##
+def calibrate_chrname(database):
+    # Regard the reference file are downloaded from NCBI, each scaffold name contains "chromosome". 
+    if '/' in database:
+        dbdir = database[:database.rindex('/')+1]
+    else:
+        dbdir = ''
+    with open(database, "r") as ref, open(dbdir+'Ref_calibrated.fa', "w") as outfile:
+        seq_id = 1
+        for line in ref:
+            if line.startswith(">"):
+                if "chromosome" in line:
+                    outfile.write(f">Chr{seq_id}\n")
+                    seq_id += 1
+                elif line.split("\n")[0] == ">Chr"+str(seq_id):
+                    outfile.write(line)
+            else:
+                outfile.write(line)
+    return dbdir 
+
 ## INDEX REF ##
 def ref_indexing(database):
     if '/' in database:
@@ -69,9 +89,8 @@ def fqtobam(database, thread, file, mode):
     os.system("mv *.bai bai/")
 
 ## RUN ##
-def mapping(database, index, mode, thread):
-    if index == "y":
-        ref_indexing(database)
+def mapping(database, mode, thread):
+    ref_indexing(database)
     li = create_dict()
     todo = filter(lambda x: x.endswith(".fq.gz") or x.endswith(".fastq.gz") or x.endswith(".fq") or x.endswith(".fastq"), li)
     for file in todo:
@@ -82,7 +101,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="Mapping step: fastq to bam")
     parser.add_argument("--database", type=str, help="Input database file for mapping.")
     ##### To Update: remove this parameter for automatic ref indexing #######
-    parser.add_argument("--index", type=str, default ='n', help="whether do reference indexing step. n=NO (default), y=YES.")
+    #parser.add_argument("--index", type=str, default ='n', help="whether do reference indexing step. n=NO (default), y=YES.")
     parser.add_argument("--mode", type = str, default='u', help="When mapping as uninterleaved, Read type, u = UNINTERLEAVED (default), i = INTERLEAVED")
     parser.add_argument("--thread", type=int, default=8, help="How many threads to use during alignment.")
 
@@ -90,7 +109,9 @@ def parse_arguments():
 
 if __name__ in "__main__":
     args = parse_arguments()
-    mapping(args.database, args.index, args.mode, args.thread)
+    dbdir = calibrate_chrname(args.database)
+    database = dbdir+"Ref_calibrated.fa"
+    mapping(database, args.mode, args.thread)
 
 
 

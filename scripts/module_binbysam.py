@@ -14,7 +14,6 @@ data = {}
 lookup = {}
 globalcount = {}
 liblist = []
-o = open("binbysam.txt", 'w')
 
 ## READ ALL SAM FILES ##
 def read_sam(sampath):
@@ -137,7 +136,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="binbysam")
     parser.add_argument("--sampath", type=str, default="sam/", help="Path for sam files (default=sam/).")
     parser.add_argument("--controlfile", type=str, default="NA", help="Input sam file (default=NA).")
-    #parser.add_argument("--binbysamfile", type=str, default="binbysam.txt", help="Output bin file.")
+    parser.add_argument("--binbysamfile", type=str, default="binbysam.txt", help="Output bin file.")
     parser.add_argument("--binsize", type=int, default=100000, help="Bin size.")
     parser.add_argument("--breaks", type=str, default = False, help="Insert breaks.")
     parser.add_argument("--ploidy", type = int, default=2, help="Ploidy multiplier (default=2).")
@@ -146,6 +145,6 @@ def parse_arguments():
 if __name__ in "__main__":
     args = parse_arguments()
     count_reads(args.sampath, args.binsize)
-    #write_outfile_header(args.sampath, args.controlfile)
+    o = open(args.binbysamfile, 'w')
     write_outfile_data(args.sampath, args.controlfile, args.binsize, args.ploidy, args.breaks)
 
