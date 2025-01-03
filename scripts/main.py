@@ -21,7 +21,7 @@ class RunScripts:
 
 def main():
     parser = argparse.ArgumentParser(description="Main")
-    parser.add_argument("script", choices=["mapping", "binbysam"], help="Choose the step to run.")
+    parser.add_argument("script", choices=["mapping", "binbysam", "chiread"], help="Choose the step to run.")
     parser.add_argument("args", nargs=argparse.REMAINDER, help="Arguments pass to the chosen step.")
     args = parser.parse_args()
 
@@ -29,6 +29,7 @@ def main():
     script_mapping = {
         "mapping": "../scripts/module_fqtobam.py",
         "binbysam": "../scripts/module_binbysam.py",
+        "chiread": "../scripts/module_search_chiread_bin.py",
     }
 
     script_path = script_mapping.get(args.script)
