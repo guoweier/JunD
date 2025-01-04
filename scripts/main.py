@@ -2,7 +2,7 @@
 # Create: 12/27/2024
 ## usage: currently this scripts needs to be run in the folder with all fq files. 
 #### UPDATE: to specify the location of fq files. #####
-#### UPDATE: to write next step for chimeric reads bin selection. ####
+#### UPDATE: to write next step for threshold 1 controls=0 ####
 
 ## PACKAGES ##
 import sys, math, os, time
@@ -21,7 +21,7 @@ class RunScripts:
 
 def main():
     parser = argparse.ArgumentParser(description="Main")
-    parser.add_argument("script", choices=["mapping", "binbysam", "chiread"], help="Choose the step to run.")
+    parser.add_argument("script", choices=["mapping", "binbysam", "chiread", "pseudojun"], help="Choose the step to run.")
     parser.add_argument("args", nargs=argparse.REMAINDER, help="Arguments pass to the chosen step.")
     args = parser.parse_args()
 
@@ -30,6 +30,7 @@ def main():
         "mapping": "../scripts/module_fqtobam.py",
         "binbysam": "../scripts/module_binbysam.py",
         "chiread": "../scripts/module_search_chiread_bin.py",
+        "pseudojun": "../scripts/module_threshold2_pseudojun.py"
     }
 
     script_path = script_mapping.get(args.script)
