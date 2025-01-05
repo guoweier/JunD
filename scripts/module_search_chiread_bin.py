@@ -91,17 +91,28 @@ def write_content(sampath, binsize, insert, minqual, mincov):
     vbins = sorted(vbins, key = lambda x: x.split('-')[2])
     vbins = sorted(vbins, key = lambda x: int(x.split('-')[1]))
     vbins = sorted(vbins, key = lambda x: x.split('-')[0])
+    same = 0
     for item in vbins:
         tup = item.split('-')
-        line = [tup[0], int(tup[1])*binsize, tup[2], int(tup[3])*binsize]
-        calls = []
-        for file in fileset:
-            temp = bins[item][file]
-            line.append(temp)
-            calls.append(temp)
-        if sum(calls) >= mincov:
-            oline = map(lambda x: str(x), line)
-            o.write('\t'.join(oline)+'\n')
+        if int(tup[0][3]) > int(tup[2][3]):
+            continue
+        elif int(tup[0][3]) == int(tup[2][3]) and int(tup[1]) > int(tup[3]):
+            continue 
+        elif int(tup[0][3]) == int(tup[2][3]) and int(tup[1]) == int(tup[3]) and same != 0:
+            same = 0
+            continue
+        else:
+            if int(tup[0][3]) == int(tup[2][3]) and int(tup[1]) == int(tup[3]) and same == 0:
+                same += 1
+            line = [tup[0], int(tup[1])*binsize, tup[2], int(tup[3])*binsize]
+            calls = []
+            for file in fileset:
+                temp = bins[item][file]
+                line.append(temp)
+                calls.append(temp)
+            if sum(calls) >= mincov:
+                oline = map(lambda x: str(x), line)
+                o.write('\t'.join(oline)+'\n')
 
 ## CALL ARGUMENTS ##
 def parse_arguments():
