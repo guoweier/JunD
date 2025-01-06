@@ -130,3 +130,4 @@ if __name__ in "__main__":
     o = open(args.chireadfile, 'w')
     write_header(args.sampath)
     write_content(args.sampath, args.binsize, args.insert, args.minqual, args.mincov)
+    o.close()
