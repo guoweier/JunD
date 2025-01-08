@@ -88,3 +88,4 @@ if __name__ in "__main__":
     args = parse_arguments()
     o = open(args.pseudofile, 'w')
     write_output(args.sampath, args.binsize, args.minqual, args.mincov)
+    o.close()

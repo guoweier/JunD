@@ -35,7 +35,7 @@ def parse_arguments():
     parser.add_argument("--input", type=str, help="Input chiread file.")
     parser.add_argument("--control", type=str, nargs="+", help="Input control names.")
     parser.add_argument("--number", type=int, default=0, help="Choose control threshold (default=0).")
-    parser.add_argument("--t1file", type=str, help="Output file with controls=chosen threshold.")
+    parser.add_argument("--t1file", type=str, help="Output file with controls<=chosen threshold.")
     return parser.parse_args()
 
 if __name__ in "__main__":
