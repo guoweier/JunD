@@ -12,7 +12,7 @@ import subprocess
 class RunScripts:
     
     def run_script(self, script, *args):
-        command = ["python3.12", script]+list(args)
+        command = ["python3", script]+list(args)
         print(f"Running: {' '.join(command)}")
         try:
             subprocess.run(command)
