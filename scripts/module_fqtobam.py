@@ -5,11 +5,28 @@
 ## PACKAGES ##
 import sys, math, os, time
 import argparse
+import gzip 
 
 ###### TO UPDATE: confirm necessary packages are all correctly loaded ########
 ###### TO UPDATE: choose mapping steps (whether to generate sam, or bam, or both, etc) ######
 ## usage: currently this scripts needs to be run in the folder with all fq files. 
 #### UPDATE: to specify the location of fq files. #####
+
+def rename_fqs():
+    li = os.listdir(os.getcwd())
+    fqs = list(filter(lambda x: x.endswith(".fq.gz") or x.endswith('.fastq.gz'), li))
+    for fq in fqs:
+        samplename = fq.split(".fq.gz")[0]
+        print(samplename)
+        with gzip.open(fq, "rt") as f, open(samplename+".rename.fq", "w") as o:
+            for line in f:
+                if line[0] == "@":
+                    ln = line.split(" ")
+                    x = '_'.join(ln)
+                    o.write(x)
+                else:
+                    o.write(line)
+        os.system(f"gzip {samplename}.rename.fq")
 
 ## CHECK REF NAME ##
 def calibrate_chrname(database):
@@ -93,9 +110,16 @@ def fqtobam(database, thread, file, mode):
 def mapping(database, mode, thread):
     ref_indexing(database)
     li = create_dict()
-    todo = filter(lambda x: x.endswith(".fq.gz") or x.endswith(".fastq.gz") or x.endswith(".fq") or x.endswith(".fastq"), li)
+    todo = list(filter(lambda x: x.endswith(".rename.fq.gz") or x.endswith(".rename.fastq.gz") or x.endswith(".rename.fq") or x.endswith(".rename.fastq"), li))
     for file in todo:
         fqtobam(database, thread, file, mode)
+
+def arrange_orifq():
+    os.system(f"mkdir orifq")
+    orifqli = os.listdir(os.getcwd())
+    orifqs = list(filter(lambda x: (x.endswith(".fq.gz") or x.endswith(".fastq.gz") or x.endswith(".fq") or x.endswith(".fastq")) and ("rename" not in x), orifqli))
+    for fq in orifqs:
+        os.system(f"mv {fq} orifq/")
     
 ## CALL ARGUMENTS ##
 def parse_arguments():
@@ -108,9 +132,12 @@ def parse_arguments():
 
 if __name__ in "__main__":
     args = parse_arguments()
+    rename_fqs()
+    arrange_orifq()
     dbdir = calibrate_chrname(args.database)
     database = dbdir+"Ref_calibrated.fa"
     mapping(database, args.mode, args.thread)
+    
 
 
 

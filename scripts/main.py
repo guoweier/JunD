@@ -21,7 +21,7 @@ class RunScripts:
 
 def main():
     parser = argparse.ArgumentParser(description="Main")
-    parser.add_argument("script", choices=["mapping", "binbysam", "chiread", "threshold1", "pseudojun", "threshold2"], help="Choose the step to run.")
+    parser.add_argument("script", choices=["mapping", "binbysam", "chiread", "threshold1", "pseudojun", "threshold2", "seeds"], help="Choose the step to run.")
     parser.add_argument("args", nargs=argparse.REMAINDER, help="Arguments pass to the chosen step.")
     args = parser.parse_args()
 
@@ -33,6 +33,7 @@ def main():
         "threshold1": "../scripts/module_threshold1_control.py",
         "pseudojun": "../scripts/module_threshold2_pseudojun.py",
         "threshold2": "../scripts/module_threshold2_sample.py",
+        "seeds": "../scripts/module_collect_seeds.py"
     }
 
     script_path = script_mapping.get(args.script)

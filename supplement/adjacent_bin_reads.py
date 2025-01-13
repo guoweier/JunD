@@ -33,58 +33,58 @@ fileset = filter(lambda x: x.endswith('.sam'), li)
 fileset.sort()
 
 for fname in fileset:
-   print fname
-   matches = []
-   f = open(fname)
-   while 1:
-       l = f.readline()
-       if l == '':
-           break
-       if l[0] == '@' and l[1] != "P":
-           h = l.split()
-           name = h[1].replace("SN:","")
-           nlen = int(h[2].replace("LN:",""))
-           chromlist[name] = nlen
-           continue
-       if l[0] == "@" and l[1] == "P":
-           continue
-       x = l.split('\t')
-       tup = []
-       tup.append([x[2], int(x[3]), int(x[4]), x[9]])
-       if x[2][0] != "C":
-           continue
-       else:
-           if int(x[4]) < minmap:
-               continue
-           else:
-            if (int(x[3]) // binsize) != (int(x[3]) + len(x[9])) // binsize:
-                name = x[2] + "_" + str((int(x[3]) // binsize + 1) * binsize)
-                   bins[name][fname] += 1
-               else:
-                   continue
-   f.close()
+    print fname
+    matches = []
+    f = open(fname)
+    while 1:
+        l = f.readline()
+        if l == '':
+            break
+        if l[0] == '@' and l[1] != "P":
+            h = l.split()
+            name = h[1].replace("SN:","")
+            nlen = int(h[2].replace("LN:",""))
+            chromlist[name] = nlen
+            continue
+        if l[0] == "@" and l[1] == "P":
+            continue
+        x = l.split('\t')
+        tup = []
+        tup.append([x[2], int(x[3]), int(x[4]), x[9]])
+        if x[2][0] != "C":
+            continue
+        else:
+            if int(x[4]) < minmap:
+                continue
+            else:
+                if (int(x[3]) // binsize) != (int(x[3]) + len(x[9])) // binsize:
+                    name = x[2] + "-" + str((int(x[3]) // binsize + 1) * binsize)
+                    bins[name][fname] += 1
+                else:
+                    continue
+    f.close()
     
 vbins = bins.keys()
-vbins.sort(key = lambda x: int(x.split('_')[1]))
-vbins.sort(key = lambda x: x.split('_')[0])
+vbins.sort(key = lambda x: int(x.split('-')[1]))
+vbins.sort(key = lambda x: x.split('-')[0])
 
 head = ['Ref', 'Bin_Position']
 for fn in fileset:
-   head.append(fn.split('_aln')[0])
+    head.append(fn.split('_aln')[0])
 
 o.write('\t'.join(head)+'\n')
 
 for item in vbins:
-   tup = item.split('_')
-   line = [tup[0], int(tup[1])]
-   calls = []
-   for file in fileset:
-      temp = bins[item][file]
-      line.append(temp)
-      calls.append(temp)
-   if sum(calls) >= opt.mincov:
-      oline = map(lambda x: str(x), line)
-      o.write('\t'.join(oline)+'\n')
+    tup = item.split('_')
+    line = [tup[0], int(tup[1])]
+    calls = []
+    for file in fileset:
+        temp = bins[item][file]
+        line.append(temp)
+        calls.append(temp)
+    if sum(calls) >= opt.mincov:
+        oline = map(lambda x: str(x), line)
+        o.write('\t'.join(oline)+'\n')
 
 
 o.close()

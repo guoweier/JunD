@@ -75,7 +75,6 @@ def write_output(input, pseudojun, sample, ploidy):
                 o.write('\t'.join(line)+'\n')
 
 
-
 ## CALL ARGUMENTS ##
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Threshold2: set samples threshold.")
@@ -83,7 +82,6 @@ def parse_arguments():
     parser.add_argument("--pseudojun", type=str, help="Input pseudo-junction file.")
     parser.add_argument("--ploidy", type=int, default=2, help="Input ploidy number (default=2).")
     parser.add_argument("--sample", type=str, nargs="+", help="Input sample names.")
-    #parser.add_argument("--t2file", type=str, help="Output file with samples>=chosen threshold.")
     return parser.parse_args()
 
 if __name__ in "__main__":

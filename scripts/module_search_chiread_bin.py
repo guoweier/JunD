@@ -1,6 +1,7 @@
 # Weier Guo Python
 # Create: 01/02/2025
 # INTRODUCTION: search bins with chimeric reads. 
+#### UPDATE: to filter only sam files are taken when search in sam directory. 
 
 ## PACKAGES ##
 import sys, math, os, time

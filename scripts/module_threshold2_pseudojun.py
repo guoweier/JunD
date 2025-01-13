@@ -1,6 +1,7 @@
 # Weier Guo Python
 # Create: 01/03/2025
 # INTRODUCTION: run pseudo-junction coverage for getting a threshold2 for chimeric reads bin selection. 
+#### UPDATE: to filter only sam files are taken when search in sam directory. 
 
 ## PACKAGES ##
 import sys, math, os, time
