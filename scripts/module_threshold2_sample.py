@@ -65,11 +65,11 @@ def get_ohead(input):
         ohead = chiread.readline()
     return ohead 
 
-def write_output(input, pseudojun, sample, ploidy):
+def write_output(input, pseudojun, sample, ploidy, binsize):
     outdict = filter_sample(input, pseudojun, sample, ploidy)
     ohead = get_ohead(input)
     for key in outdict:
-        with open("T2_"+key+".txt", "w") as o:
+        with open("T2_"+key+"-"+binsize+".txt", "w") as o:
             o.write(ohead)
             for line in outdict[key]:
                 o.write('\t'.join(line)+'\n')
@@ -80,10 +80,11 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="Threshold2: set samples threshold.")
     parser.add_argument("--input", type=str, help="Input threshold1 filtered chiread file.")
     parser.add_argument("--pseudojun", type=str, help="Input pseudo-junction file.")
+    parser.add_argument("--binsize", type=str, help="Bin size.")
     parser.add_argument("--ploidy", type=int, default=2, help="Input ploidy number (default=2).")
     parser.add_argument("--sample", type=str, nargs="+", help="Input sample names.")
     return parser.parse_args()
 
 if __name__ in "__main__":
     args = parse_arguments()
-    write_output(args.input, args.pseudojun, args.sample, args.ploidy)
+    write_output(args.input, args.pseudojun, args.sample, args.ploidy, args.binsize)
