@@ -87,7 +87,7 @@ def fqtobam(database, thread, file, mode):
         print(name)
         # bwa mem aligning
         print("bwa mem aligning")
-        os.system("bwa mem -t "+str(threads)+" "+database+" "+name+"_1."+tail+" "+name+"_2."+tail+" > "+name+"_aln.sam")
+        os.system("bwa mem -t "+str(thread)+" "+database+" "+name+"_1."+tail+" "+name+"_2."+tail+" > "+name+"_aln.sam")
     # sam to bam
     print("sam to bam")
     os.system("samtools view -bS "+name+"_aln.sam"+" > "+name+"_aln.bam")
@@ -102,7 +102,10 @@ def fqtobam(database, thread, file, mode):
     os.system("samtools index "+name+"_aln.sorted.bam"+" > "+name+"_aln.sorted.bam.bai")
     # put files into their directory
     os.system('mv *_aln.sam sam/')
-    os.system("mv "+file+" fq/")
+    if mode == "i":
+        os.system("mv "+file+" fq/")
+    elif mode == "u":
+        os.system(f"mv {name}_1.{tail} {name}_2.{tail} fq/")
     os.system("mv *.sorted.bam sorted_bam/")
     os.system("mv *.bai bai/")
 
@@ -110,7 +113,7 @@ def fqtobam(database, thread, file, mode):
 def mapping(database, mode, thread):
     ref_indexing(database)
     li = create_dict()
-    todo = list(filter(lambda x: x.endswith(".rename.fq.gz") or x.endswith(".rename.fastq.gz") or x.endswith(".rename.fq") or x.endswith(".rename.fastq"), li))
+    todo = list(filter(lambda x: x.endswith("_1.rename.fq.gz") or x.endswith("_1.rename.fastq.gz") or x.endswith("_1.rename.fq") or x.endswith("_1.rename.fastq"), li))
     for file in todo:
         fqtobam(database, thread, file, mode)
 
