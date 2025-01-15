@@ -2,7 +2,6 @@
 # Create: 12/26/2024
 # INTRODUCTION: Create relative read coverage for all sam files. 
 #### UPDATE: to adjust script to binbysamv8, for including different mapping options. ####
-#### DEBUG: why chr5 output twice. 
 
 ## PACKAGES ##
 import sys, math, os, time
@@ -33,7 +32,7 @@ def get_chrom(sampath, binsize):
         if line[:3] == "@SQ":
             temp = (line[:-1].replace('SN:','').replace('LN:','').split('\t')[1:])
             key2 = temp[0]
-        alls.append(key2)
+            alls.append(key2)
         sizes.append(int(temp[1]))
         lookup[key2] = int(temp[1])
         key1 = temp[0][3:]
@@ -50,7 +49,7 @@ def get_chrom(sampath, binsize):
 
 ## ADD BLANK LINES FOR SEPARATE CHROMOSOMES ##
 def add_blanks(binsize):
-    numblanks = max(sizes)/binsize/10
+    numblanks = max(sizes)//binsize//10
     return numblanks 
 
 ## COUNT READS ##
@@ -84,6 +83,7 @@ def count_reads(sampath, binsize):
                     data[key1][key2][key3][libname] = 1
             globalcount[libname] += 1
         f.close()
+    
 
 ## CREATE OUTPUT file ##
 def write_outfile_header(sampath, controlfile):
@@ -92,7 +92,7 @@ def write_outfile_header(sampath, controlfile):
     controlkey = control.split('/')[1]
     header = ['Chrom', 'Strt', 'End']
     header += liblist
-    header += map(lambda x: x+"/"+control, liblist)
+    header += map(lambda x: x+"/"+controlkey, liblist)
     o.write('\t'.join(header)+'\n') 
     return controlkey
 
@@ -103,9 +103,10 @@ def write_outfile_data(sampath, controlfile, binsize, ploidy, breaks):
         bins = sorted(data[part][chrom].keys())
         for modbin in bins:
             libdata = data[part][chrom][modbin]
-            line = [chrom, modbin*binsize+1, (modbin+1)*binsize]
             if modbin == bins[-1]:
                 line = [chrom, modbin*binsize+1, lookup[chrom]]
+            else:
+                line = [chrom, modbin*binsize+1, (modbin+1)*binsize]
             pers = {}
             for x in liblist:
                 try:
@@ -128,9 +129,10 @@ def write_outfile_data(sampath, controlfile, binsize, ploidy, breaks):
                         line.append('.')
             fline = map(lambda x: str(x), line)
             o.write('\t'.join(fline)+'\n')
-        if breaks == True:
+        if breaks == "True":
             numblanks = add_blanks(binsize)
-            o.write(''.join(map(lambda x: '\n', range(numblanks))))
+            if chrom != alls[-1]:
+                o.write(''.join(map(lambda x: '\n', range(numblanks))))
     o.close()
 
 ## CALL ARGUMENTS ##
@@ -140,7 +142,7 @@ def parse_arguments():
     parser.add_argument("--controlfile", type=str, default="NA", help="Input sam file (default=NA).")
     parser.add_argument("--binbysamfile", type=str, default="binbysam.txt", help="Output bin file.")
     parser.add_argument("--binsize", type=int, default=100000, help="Bin size.")
-    parser.add_argument("--breaks", type=str, default = False, help="Insert breaks.")
+    parser.add_argument("--breaks", type=str, default = "False", help="Insert breaks.")
     parser.add_argument("--ploidy", type = int, default=2, help="Ploidy multiplier (default=2).")
     return parser.parse_args()
 

@@ -18,7 +18,7 @@ def get_samplename(input):
         filename = input[input.rindex('/')+1:]
     else:
         filename = input 
-    samplename = filename[:-4].split("T2_")[1]
+    samplename = filename.split("-")[0].split("T2_")[1]
     return samplename 
 
 def extract_chiread(sampath, input, chr1, chr2, pos1, pos2, binsize, insert, minqual):
