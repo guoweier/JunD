@@ -10,9 +10,36 @@ import gzip
 ###### TO UPDATE: confirm necessary packages are all correctly loaded ########
 ###### TO UPDATE: choose mapping steps (whether to generate sam, or bam, or both, etc) ######
 ## usage: currently this scripts needs to be run in the folder with all fq files. 
-#### UPDATE: to specify the location of fq files. #####
+#### UPDATE: to specify the location of fq files. ####
+#### UPDATE: optimize ref modification for all types of chromosomes naming. ####
 
-def rename_fqs():
+def interleave(mode):
+    li = os.listdir(os.getcwd())
+    if mode == "u":
+        fqs = list(filter(lambda x: x.endswith("_1.fq.gz") or x.endswith('_1.fastq.gz'), li))
+        for fq in fqs:
+            name = fq.split("_1.")[0]
+            tail = fq.split("_1.")[1]
+            print(name)
+            with gzip.open(name+"_1."+tail, "rt") as f, gzip.open(name+"_2."+tail, "rt") as r, open(name+".fq", "w") as o:
+                while True:
+                    name1 = f.readline()
+                    if name1 == "":
+                        break
+                    seq1 = f.readline()
+                    p1 = f.readline()
+                    qual1 = f.readline()
+                    name2 = r.readline()
+                    seq2 = r.readline()
+                    p2 = r.readline()
+                    qual2 = r.readline()
+                    o.write(name1+seq1+p1+qual1+name2+seq2+p2+qual2)
+            os.system(f"gzip {name}.fq")
+            os.system(f"mv {name}_1.{tail} orifq/")
+            os.system(f"mv {name}_2.{tail} orifq/")
+
+def rename_fqs(mode):
+    interleave(mode)
     li = os.listdir(os.getcwd())
     fqs = list(filter(lambda x: x.endswith(".fq.gz") or x.endswith('.fastq.gz'), li))
     for fq in fqs:
@@ -28,6 +55,7 @@ def rename_fqs():
                     o.write(line)
         os.system(f"gzip {samplename}.rename.fq")
 
+
 ## CHECK REF NAME ##
 def calibrate_chrname(database):
     # Regard the reference file are downloaded from NCBI, each scaffold name contains "chromosome". 
@@ -41,10 +69,14 @@ def calibrate_chrname(database):
             if line.startswith(">"):
                 if line.split("\n")[0] == ">Chr"+str(seq_id):
                     outfile.write(line)
+                    seq_id += 1
                 elif "chromosome" not in line:
                     break
                 elif "chromosome" in line:
                     outfile.write(f">Chr{seq_id}\n")
+                    seq_id += 1
+                elif "Chr"+str(seq_id) in line or "Chr0"+str(seq_id) in line or "chr"+str(seq_id) in line or "chr0"+str(seq_id) in line:
+                    outfile.write(f"Chr{seq_id}\n")
                     seq_id += 1
             else:
                 outfile.write(line)
@@ -74,20 +106,12 @@ def create_dict():
     return li
 
 ## BASIC MAPPING ##
-def fqtobam(database, thread, file, mode):
-    if mode == "i":
-        name = file.split('.')[0]
-        print(name)
-        # bwa mem aligning
-        print("bwa mem aligning")
-        os.system("bwa mem -t "+str(thread)+" "+database+" "+file+" > "+name+"_aln.sam")
-    elif mode == "u":
-        name = file.split('_1.')[0]
-        tail = file.split('_1.')[1]
-        print(name)
-        # bwa mem aligning
-        print("bwa mem aligning")
-        os.system("bwa mem -t "+str(thread)+" "+database+" "+name+"_1."+tail+" "+name+"_2."+tail+" > "+name+"_aln.sam")
+def fqtobam(database, thread, file):
+    name = file.split('.')[0]
+    print(name)
+    # bwa mem aligning
+    print("bwa mem aligning")
+    os.system("bwa mem -t "+str(thread)+" "+database+" "+file+" > "+name+"_aln.sam")
     # sam to bam
     print("sam to bam")
     os.system("samtools view -bS "+name+"_aln.sam"+" > "+name+"_aln.bam")
@@ -102,23 +126,19 @@ def fqtobam(database, thread, file, mode):
     os.system("samtools index "+name+"_aln.sorted.bam"+" > "+name+"_aln.sorted.bam.bai")
     # put files into their directory
     os.system('mv *_aln.sam sam/')
-    if mode == "i":
-        os.system("mv "+file+" fq/")
-    elif mode == "u":
-        os.system(f"mv {name}_1.{tail} {name}_2.{tail} fq/")
+    os.system("mv "+file+" fq/")
     os.system("mv *.sorted.bam sorted_bam/")
     os.system("mv *.bai bai/")
 
 ## RUN ##
-def mapping(database, mode, thread):
+def mapping(database, thread):
     ref_indexing(database)
     li = create_dict()
-    todo = list(filter(lambda x: x.endswith("_1.rename.fq.gz") or x.endswith("_1.rename.fastq.gz") or x.endswith("_1.rename.fq") or x.endswith("_1.rename.fastq"), li))
+    todo = list(filter(lambda x: x.endswith(".rename.fq.gz") or x.endswith(".rename.fastq.gz") or x.endswith(".rename.fq") or x.endswith(".rename.fastq"), li))
     for file in todo:
-        fqtobam(database, thread, file, mode)
+        fqtobam(database, thread, file)
 
 def arrange_orifq():
-    os.system(f"mkdir orifq")
     orifqli = os.listdir(os.getcwd())
     orifqs = list(filter(lambda x: (x.endswith(".fq.gz") or x.endswith(".fastq.gz") or x.endswith(".fq") or x.endswith(".fastq")) and ("rename" not in x), orifqli))
     for fq in orifqs:
@@ -135,11 +155,12 @@ def parse_arguments():
 
 if __name__ in "__main__":
     args = parse_arguments()
-    rename_fqs()
+    os.system(f"mkdir orifq")
+    rename_fqs(args.mode)
     arrange_orifq()
     dbdir = calibrate_chrname(args.database)
     database = dbdir+"Ref_calibrated.fa"
-    mapping(database, args.mode, args.thread)
+    mapping(database, args.thread)
     
 
 
