@@ -11,7 +11,6 @@ import gzip
 ###### TO UPDATE: choose mapping steps (whether to generate sam, or bam, or both, etc) ######
 ## usage: currently this scripts needs to be run in the folder with all fq files. 
 #### UPDATE: to specify the location of fq files. ####
-#### UPDATE: optimize ref modification for all types of chromosomes naming. ####
 
 def interleave(mode):
     li = os.listdir(os.getcwd())
@@ -150,7 +149,6 @@ def parse_arguments():
     parser.add_argument("--database", type=str, help="Input database file for mapping.")
     parser.add_argument("--mode", type = str, default='u', help="When mapping as uninterleaved, Read type, u = UNINTERLEAVED (default), i = INTERLEAVED")
     parser.add_argument("--thread", type=int, default=8, help="How many threads to use during alignment.")
-
     return parser.parse_args()
 
 if __name__ in "__main__":
